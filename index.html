@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+    <style>
+        .font-roboto-condensed {
+            font-family: 'Roboto Condensed', sans-serif;
+        }
+        .typing {
+            font-family: monospace;
+            white-space: nowrap;
+            overflow: hidden;
+            border-right: 2px solid #00ff00;
+            display: inline-block;
+            animation: typing 2s steps(20, end) forwards, blink 0.6s infinite;
+        }
+        @keyframes typing {
+            from { width: 0; }
+            to { width: 100%; }
+        }
+        @keyframes blink {
+            50% { border-color: transparent; }
+        }
+        /* Animação de cores alternando no botão */
+        @keyframes colorChange {
+            0% { background-color: rgb(255, 0, 0); }
+            25% { background-color: rgb(0, 255, 0); }
+            50% { background-color: rgb(0, 0, 255); }
+            75% { background-color: rgb(255, 255, 0); }
+            100% { background-color: rgb(255, 0, 0); }
+        }
+
+        .color-changing-button {
+            animation: colorChange 4s infinite;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 flex items-center justify-center min-h-screen">
+    <div class="bg-gray-800 p-8 rounded-lg shadow-lg text-center max-w-xl w-full">
+        <h1 class="text-2xl font-bold text-blue-500 mb-4 font-roboto-condensed">Gerador de QR Code</h1>
+        <div class="flex items-center space-x-2 mb-4">
+            <input id="inputText" type="text" placeholder="Digite um link ou texto" 
+                   class="flex-grow p-2 rounded border border-gray-600 bg-gray-700 text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <button onclick="generateQRCode()" 
+                    class="color-changing-button text-white px-4 py-2 rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                Gerar QR Code
+            </button>
+        </div>
+        <div id="qrCodeContainer" class="bg-gray-700 h-72 w-72 flex items-center justify-center rounded-lg mb-4 relative overflow-hidden mx-auto">
+            <span id="typingEffect" class="text-green-500 text-lg typing"></span>
+        </div>
+        <div class="flex justify-center space-x-4">
+            <button onclick="shareQR()" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 flex items-center">
+                <i class="fas fa-share-alt mr-2"></i> Compartilhar
+            </button>
+            <button onclick="copyLink()" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 flex items-center">
+                <i class="fas fa-copy mr-2"></i> Copiar Link
+            </button>
+        </div>
+    </div>
+
+    <script>
+        function generateQRCode() {
+            const inputText = document.getElementById('inputText').value;
+            const qrCodeContainer = document.getElementById('qrCodeContainer');
+            const typingEffect = document.getElementById('typingEffect');
+            qrCodeContainer.innerHTML = '<span id="typingEffect" class="text-green-500 text-lg typing">Gerando código...</span>';
+
+            if (inputText.trim() === '') {
+                alert('Por favor, insira um link ou texto.');
+                return;
+            }
+
+            setTimeout(() => {
+                qrCodeContainer.innerHTML = ''; // Remove a animação de digitação
+                const qrCodeImage = document.createElement('img');
+                qrCodeImage.src = `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(inputText)}&size=200x200`;
+                qrCodeImage.alt = 'QR Code gerado';
+                qrCodeImage.className = 'h-48 w-48';  // Ajuste do tamanho do QR Code
+                qrCodeContainer.appendChild(qrCodeImage);
+            }, 2000); // Simula a digitação antes do QR aparecer
+        }
+
+        function shareQR() {
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Meu QR Code',
+                    text: 'Confira este QR Code!',
+                    url: document.getElementById('inputText').value
+                }).catch(err => console.log('Erro ao compartilhar:', err));
+            } else {
+                alert('Compartilhamento não suportado neste navegador.');
+            }
+        }
+
+        function copyLink() {
+            const inputText = document.getElementById('inputText').value;
+            navigator.clipboard.writeText(inputText).then(() => {
+                alert('Link copiado para a área de transferência!');
+            }).catch(err => console.log('Erro ao copiar:', err));
+        }
+    </script>
+</body>
+</html>
